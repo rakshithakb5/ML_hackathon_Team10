@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathSnap: Distributed Map-Matching & Route Reconstruction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+        }
+        .header-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--accent-color);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            margin-right: 12px;
+        }
+        .card-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .metric-card {
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .metric-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        .metric-delta {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .form-control, .form-select {
+            background-color: #111827;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #111827;
+            border-color: var(--accent-color);
+            color: var(--text-main);
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        }
+        .btn-evaluate {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-evaluate:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-1px);
+        }
+        .map-container {
+            width: 100%;
+            height: 620px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #111827;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .status-offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="header-logo"><i class="fa-solid fa-route"></i></div>
+                <div>
+                    <h5 class="mb-0 fw-bold">PathSnap: Map-Matching & Route Reconstruction</h5>
+                    <small class="text-muted">Distributed Evaluation Console (Laptop 2 Client)</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="apiStatusBadge" class="status-badge status-offline">API Disconnected</span>
+                <span class="text-muted small">PES University | UE24CS352A</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+        <!-- Configuration & Control Bar -->
+        <div class="card-panel">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Laptop 1 API Endpoint</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-server"></i></span>
+                        <input type="text" id="apiUrlInput" class="form-control" value="http://localhost:8000" placeholder="http://192.168.x.x:8000">
+                        <button class="btn btn-outline-secondary" onclick="checkApiConnection()"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Select Evaluation Trip (10 Reserved Trips)</label>
+                    <select id="tripSelect" class="form-select">
+                        <option value="">Loading trips from server...</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button id="evaluateBtn" class="btn btn-evaluate flex-grow-1" onclick="runEvaluation()">
+                        <i class="fa-solid fa-play me-2"></i>Run Evaluation Pipeline
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Dashboard Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">Pointwise Top-1 Acc</div>
+                    <div id="mObsAcc" class="metric-value text-primary">--%</div>
+                    <div id="mObsDelta" class="metric-delta text-success"><i class="fa-solid fa-arrow-up"></i> HMM vs Clf</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">Route Continuity</div>
+                    <div id="mContinuity" class="metric-value text-success">--%</div>
+                    <div class="metric-delta text-muted">Network graph edges</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">Route Sequence F1</div>
+                    <div id="mRouteF1" class="metric-value text-info">--</div>
+                    <div id="mPrecisionRecall" class="metric-delta text-muted">P: --% | R: --%</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">Reconstructed Arcs</div>
+                    <div id="mRouteArcs" class="metric-value text-warning">--</div>
+                    <div id="mTrueArcs" class="metric-delta text-muted">True: -- arcs</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">GPS Observations</div>
+                    <div id="mGpsPoints" class="metric-value text-light">--</div>
+                    <div class="metric-delta text-muted">1 Hz Nom. Track</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <div class="metric-label">Inference Latency</div>
+                    <div id="mLatency" class="metric-value text-danger">-- ms</div>
+                    <div class="metric-delta text-muted">End-to-End Pipeline</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Folium Map Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card-panel p-2">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary mb-2">
+                        <span class="fw-bold"><i class="fa-solid fa-map-location-dot me-2 text-primary"></i>Interactive Map Matching Visualization</span>
+                        <span class="text-muted small">Blue: Raw GPS | Green: Ground Truth | Red: HMM Predicted Route</span>
+                    </div>
+                    <div class="map-container">
+                        <iframe id="mapFrame" src="about:blank" style="width:100%; height:100%; border:none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentApiUrl = "http://localhost:8000";
+
+        async function checkApiConnection() {
+            currentApiUrl = document.getElementById("apiUrlInput").value.trim().replace(/\/$/, "");
+            const badge = document.getElementById("apiStatusBadge");
+            try {
+                const resp = await fetch(`${currentApiUrl}/api/health`, { method: "GET" });
+                if (resp.ok) {
+                    badge.className = "status-badge status-online";
+                    badge.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Laptop 1 API Online';
+                    loadTrips();
+                } else {
+                    throw new Error("Not OK");
+                }
+            } catch (e) {
+                badge.className = "status-badge status-offline";
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Laptop 1 Unreachable';
+            }
+        }
+
+        async function loadTrips() {
+            const select = document.getElementById("tripSelect");
+            try {
+                const resp = await fetch(`${currentApiUrl}/api/trips`);
+                const data = await resp.json();
+                select.innerHTML = "";
+                data.trips.forEach(tid => {
+                    const opt = document.createElement("option");
+                    opt.value = tid;
+                    opt.innerText = `Trip ${tid} (${data.partition})`;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Error loading trips:", e);
+            }
+        }
+
+        async function runEvaluation() {
+            const tripId = document.getElementById("tripSelect").value;
+            if (!tripId) {
+                alert("Please select a trip first.");
+                return;
+            }
+
+            const btn = document.getElementById("evaluateBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Evaluating on Laptop 1...';
+
+            try {
+                const resp = await fetch(`${currentApiUrl}/api/evaluate/${tripId}`, { method: "POST" });
+                if (!resp.ok) {
+                    throw new Error("Evaluation request failed: " + resp.statusText);
+                }
+                const result = await resp.json();
+
+                // Update metric cards
+                document.getElementById("mObsAcc").innerText = result.observation_acc_hmm + "%";
+                document.getElementById("mObsDelta").innerHTML = `<i class="fa-solid fa-arrow-up"></i> +${(result.observation_acc_hmm - result.observation_acc_clf).toFixed(2)}% vs Classifier (${result.observation_acc_clf}%)`;
+                
+                document.getElementById("mContinuity").innerText = result.continuity_hmm + "%";
+                document.getElementById("mRouteF1").innerText = result.route_f1_score;
+                document.getElementById("mPrecisionRecall").innerText = `P: ${result.route_precision_pct}% | R: ${result.route_recall_pct}%`;
+                
+                document.getElementById("mRouteArcs").innerText = result.reconstructed_arcs_count;
+                document.getElementById("mTrueArcs").innerText = `True: ${result.reference_arcs_count} arcs`;
+                
+                document.getElementById("mGpsPoints").innerText = result.gps_points_count.toLocaleString();
+                document.getElementById("mLatency").innerText = result.total_latency_ms + " ms";
+
+                // Update Folium Map Iframe
+                const mapFrame = document.getElementById("mapFrame");
+                mapFrame.src = `${currentApiUrl}${result.map_url}?t=${Date.now()}`;
+
+            } catch (err) {
+                alert("Evaluation error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-play me-2"></i>Run Evaluation Pipeline';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener("DOMContentLoaded", () => {
+            checkApiConnection();
+        });
+    </script>
+</body>
+</html>
