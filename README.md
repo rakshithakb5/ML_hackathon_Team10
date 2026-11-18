@@ -9,7 +9,7 @@ PathSnap is an end-to-end distributed machine learning system developed for **UE
 
 ---
 
-## 🚀 Key Highlights & Results
+## Key Highlights & Results
 
 * **Multi-Family ML Comparison:** Trained and cross-validated 5 distinct model families (**Logistic Regression, KNN, Random Forest, LightGBM, MLP**) using 5-fold GroupKFold by trip.
 * **Bayesian Hyperparameter Optimization:** Optimized LightGBM using Optuna (TPE) across 20 trials, reducing log loss to **0.1477**.
@@ -18,7 +18,7 @@ PathSnap is an end-to-end distributed machine learning system developed for **UE
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 PathSnap/
@@ -66,7 +66,7 @@ PathSnap/
 
 ---
 
-## 🛠️ Installation & Setup
+##  Installation & Setup
 
 Ensure you have Python 3.10+ installed.
 
@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 ---
 
-## 📊 Pipeline Execution (Step-by-Step)
+## Pipeline Execution (Step-by-Step)
 
 To reproduce the experiments from scratch:
 
@@ -107,7 +107,7 @@ python hmm/evaluation.py
 
 ---
 
-## 💻 Two-Laptop Live Demonstration Guide
+## Two-Laptop Live Demonstration Guide
 
 The project is structured according to the **Two-Laptop Deployment Architecture**:
 
@@ -154,7 +154,7 @@ The project is structured according to the **Two-Laptop Deployment Architecture*
 
 ---
 
-## 📈 Benchmark Summary
+## Benchmark Summary
 
 ### 1. Model Comparison (Table 3.1)
 | Model | Algorithm Family | CV Macro F1 | Top-1 Accuracy | Route Continuity | Student-Test Macro F1 | Log Loss | Inference Time |
@@ -177,5 +177,5 @@ The project is structured according to the **Two-Laptop Deployment Architecture*
 
 ---
 
-## 📜 Academic Integrity Declaration
+## Academic Integrity Declaration
 All components of this project were developed independently by the team without unauthorized collaboration or data leakage. Evaluator testing data was strictly held out and untouched. Reference routes remain server-side and are never hardcoded in the client interface.
