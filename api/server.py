@@ -105,23 +105,29 @@ def health():
     return {"status": "ok", "timestamp": time.time()}
 
 @app.get("/api/trips")
-def list_evaluation_trips():
-    """Lists all available evaluation trips (from student_test partition)."""
-    target_dir = os.path.join(DATA_DIR, "student_test")
-    if not os.path.exists(target_dir):
-        # Fallback to any partition available
+def list_evaluation_trips(partition: Optional[str] = None):
+    """Lists all available evaluation trips, prioritizing evaluator_test partition."""
+    if partition and os.path.exists(os.path.join(DATA_DIR, partition)):
+        target_dir = os.path.join(DATA_DIR, partition)
+    elif os.path.exists(os.path.join(DATA_DIR, "evaluator_test")):
+        target_dir = os.path.join(DATA_DIR, "evaluator_test")
+    elif os.path.exists(os.path.join(DATA_DIR, "student_test")):
+        target_dir = os.path.join(DATA_DIR, "student_test")
+    else:
+        target_dir = None
         for p in EVAL_PARTITIONS:
             candidate = os.path.join(DATA_DIR, p)
             if os.path.exists(candidate):
                 target_dir = candidate
                 break
                 
-    if not os.path.exists(target_dir):
+    if not target_dir or not os.path.exists(target_dir):
         return {"trips": []}
         
     trips = sorted([d for d in os.listdir(target_dir) if os.path.isdir(os.path.join(target_dir, d))])
-    logger.info(f"Served list of {len(trips)} evaluation trips to client.")
-    return {"partition": os.path.basename(target_dir), "trips": trips}
+    current_part = os.path.basename(target_dir)
+    logger.info(f"Served list of {len(trips)} evaluation trips ({current_part}) to client.")
+    return {"partition": current_part, "trips": trips}
 
 @app.post("/api/evaluate/{trip_id}")
 def evaluate_trip(trip_id: str):

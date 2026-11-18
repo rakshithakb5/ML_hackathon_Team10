@@ -148,7 +148,7 @@
         <!-- Configuration & Control Bar -->
         <div class="card-panel">
             <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label text-muted small fw-bold">Laptop 1 API Endpoint</label>
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-server"></i></span>
@@ -156,13 +156,20 @@
                         <button class="btn btn-outline-secondary" onclick="checkApiConnection()"><i class="fa-solid fa-arrows-rotate"></i></button>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label text-muted small fw-bold">Select Evaluation Trip (10 Reserved Trips)</label>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold">Evaluation Partition</label>
+                    <select id="partitionSelect" class="form-select" onchange="loadTrips()">
+                        <option value="evaluator_test" selected>Evaluator Testing (Final 10 Trips)</option>
+                        <option value="student_test">Student Testing (Dev 10 Trips)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold">Select Trip</label>
                     <select id="tripSelect" class="form-select">
                         <option value="">Loading trips from server...</option>
                     </select>
                 </div>
-                <div class="col-md-4 d-flex gap-2">
+                <div class="col-md-3 d-flex gap-2">
                     <button id="evaluateBtn" class="btn btn-evaluate flex-grow-1" onclick="runEvaluation()">
                         <i class="fa-solid fa-play me-2"></i>Run Evaluation Pipeline
                     </button>
@@ -254,9 +261,11 @@
         }
 
         async function loadTrips() {
+            const partSelect = document.getElementById("partitionSelect");
+            const part = partSelect ? partSelect.value : "evaluator_test";
             const select = document.getElementById("tripSelect");
             try {
-                const resp = await fetch(`${currentApiUrl}/api/trips`);
+                const resp = await fetch(`${currentApiUrl}/api/trips?partition=${part}`);
                 const data = await resp.json();
                 select.innerHTML = "";
                 data.trips.forEach(tid => {
