@@ -1,3 +1,3 @@
 Model,CV Macro F1-score,Student-testing Top-1 Accuracy (%),Student-testing Macro F1-score,Log Loss,Inference Time (ms / cand)
-Untuned LightGBM,0.8294,67.31,0.8375,0.1534,0.0011
-Tuned LightGBM,0.8606,67.52,0.8386,0.1511,0.0018
+Untuned LightGBM,0.8294,78.17,0.8755,0.1273,0.0047
+Tuned LightGBM,0.8593,78.41,0.8777,0.124,0.0135

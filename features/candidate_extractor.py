@@ -85,11 +85,11 @@ class CandidateExtractor:
         route_to = self.to_m[route]
         
         curr_r_idx = 0
-        window_size = 30
+        window_size = 150
         
         for t in range(T):
             p = self.track_m[t]
-            start_idx = max(0, curr_r_idx - 5)
+            start_idx = max(0, curr_r_idx - 10)
             end_idx = min(R, curr_r_idx + window_size)
             
             sub_from = route_from[start_idx:end_idx]
