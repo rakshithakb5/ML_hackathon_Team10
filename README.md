@@ -152,7 +152,9 @@ The project is structured according to the **Two-Laptop Deployment Architecture*
    * **Interactive Folium Map** (Raw GPS blue markers, Ground-truth green route, HMM predicted red route).
 6. The evaluator can verify the authentic incoming request and live execution on the Laptop 1 CMD terminal.
 
+
 ---
+
 
 ## Benchmark Summary
 
