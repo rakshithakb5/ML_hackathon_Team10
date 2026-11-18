@@ -20,21 +20,16 @@ from features.candidate_extractor import CandidateExtractor
 def build_dataset(
     data_dir: str = "data",
     results_dir: str = "results",
-    max_train_trips: int = 30,
-    stride: int = 2
+    max_train_trips: int = 80,
+    stride: int = 1
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     os.makedirs(results_dir, exist_ok=True)
     train_cache = os.path.join(results_dir, "train_features.pkl.gz")
     test_cache = os.path.join(results_dir, "student_test_features.pkl.gz")
     
-    if os.path.exists(train_cache) and os.path.exists(test_cache):
-        print(f"Loading cached feature datasets from {results_dir}...")
-        train_df = pd.read_pickle(train_cache)
-        test_df = pd.read_pickle(test_cache)
-        return train_df, test_df
-        
+    # Force rebuild to use all 80 trips if requested
     print("=" * 60)
-    print("EXTRACTING FEATURES FOR TRAINING & STUDENT-TESTING")
+    print("EXTRACTING FEATURES ACROSS ALL 80 TRAINING TRIPS & 10 TEST TRIPS")
     print("=" * 60)
     
     # 1. Training set

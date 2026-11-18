@@ -1,6 +1,6 @@
 Model,Algorithm Family,Key Configuration,CV Macro F1-score,Top-1 Accuracy,Route continuity,Student-Test Macro F1-score,Log Loss,Inference Time
-Logistic Regression,Linear and Probabilistic,"C=1.0, solver=lbfgs, StandardScaler",0.8157,65.85,88.61,0.8183,0.1692,0.000 ms
-KNN (Distance-Weighted),Instance-Based,"k=9, weights=distance, StandardScaler",0.8069,64.55,87.02,0.8154,0.5302,0.029 ms
-Random Forest,Ensemble,"n_estimators=100, max_depth=14",0.8291,66.86,89.51,0.8328,0.1491,0.002 ms
-LightGBM,Boosting,"n_estimators=120, lr=0.08, num_leaves=31",0.8294,66.47,88.98,0.833,0.1585,0.001 ms
-Multi-Layer Perceptron (MLP),Neural Networks,"layers=(64, 32), relu, Adam, early_stopping",0.8247,65.59,88.28,0.8282,0.1518,0.001 ms
+Logistic Regression,Linear and Probabilistic,"C=1.0, solver=lbfgs, StandardScaler",0.8332,65.99,88.6,0.8135,0.1754,0.000 ms
+KNN (Distance-Weighted),Instance-Based,"k=9, weights=distance, StandardScaler",0.8401,65.94,87.93,0.8258,0.6393,0.026 ms
+Random Forest,Ensemble,"n_estimators=100, max_depth=14",0.8581,67.46,89.59,0.8386,0.1493,0.002 ms
+LightGBM,Boosting,"n_estimators=120, lr=0.08, num_leaves=31",0.857,67.31,89.38,0.8375,0.1534,0.001 ms
+Multi-Layer Perceptron (MLP),Neural Networks,"layers=(64, 32), relu, Adam, early_stopping",0.8541,66.72,89.04,0.8352,0.1648,0.001 ms
